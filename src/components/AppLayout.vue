@@ -1,6 +1,64 @@
 <template>
     <div class="flex h-screen bg-gray-100">
-        <!-- Sidebar -->
+        <!-- Mobile sidebar overlay -->
+        <Teleport to="body">
+            <Transition name="overlay">
+                <div v-if="mobileMenuOpen" class="fixed inset-0 flex z-40 md:hidden" role="dialog" aria-modal="true">
+                    <Transition name="backdrop">
+                        <div
+                            v-if="mobileMenuOpen"
+                            class="fixed inset-0 bg-gray-600 bg-opacity-75"
+                            @click="mobileMenuOpen = false"
+                        ></div>
+                    </Transition>
+
+                    <!-- Mobile sidebar -->
+                    <Transition name="slide-right">
+                        <div v-if="mobileMenuOpen" class="relative flex-1 flex flex-col max-w-xs w-full bg-white">
+                            <div class="absolute top-0 right-0 -mr-12 pt-2">
+                                <button
+                                    type="button"
+                                    class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white hover:bg-white hover:bg-opacity-10 transition-colors duration-200"
+                                    @click="mobileMenuOpen = false"
+                                >
+                                    <span class="sr-only">Fechar sidebar</span>
+                                    <X class="h-6 w-6 text-white" />
+                                </button>
+                            </div>
+
+                            <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+                                <div class="flex-shrink-0 flex items-center px-4">
+                                    <img class="h-8 w-auto" src="@/assets/korys-health-logo.png" alt="Korys Health" />
+                                </div>
+                                <nav class="mt-5 px-2 space-y-1">
+                                    <template v-for="item in navigation" :key="item.name">
+                                        <router-link
+                                            :class="[
+                                                item.current
+                                                    ? 'bg-gray-100 text-gray-900'
+                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                                                'group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors duration-200',
+                                            ]"
+                                            :to="item.href"
+                                            @click="mobileMenuOpen = false"
+                                        >
+                                            <component :is="item.icon" class="mr-4 flex-shrink-0 h-6 w-6" />
+                                            {{ item.name }}
+                                        </router-link>
+                                    </template>
+                                </nav>
+                            </div>
+                        </div>
+                    </Transition>
+
+                    <div class="flex-shrink-0 w-14">
+                        <!-- Force sidebar to shrink to fit close icon -->
+                    </div>
+                </div>
+            </Transition>
+        </Teleport>
+
+        <!-- Static sidebar for desktop -->
         <div class="hidden md:flex md:w-64 md:flex-col">
             <div class="flex flex-col flex-grow pt-5 bg-white overflow-y-auto border-r">
                 <div class="flex items-center flex-shrink-0 px-4">
@@ -15,7 +73,6 @@
                                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
                                 'group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left',
                             ]"
-                            @old-click="$emit('navigate', item.href)"
                             :to="item.href"
                         >
                             <component :is="item.icon" class="mr-3 flex-shrink-0 h-5 w-5" />
@@ -30,9 +87,20 @@
         <div class="flex flex-col flex-1">
             <!-- Top bar -->
             <div class="flex items-center justify-between h-16 bg-white border-b border-gray-200 px-4">
-                <h1 class="text-lg font-semibold text-gray-900">
-                    {{ currentPageTitle }}
-                </h1>
+                <div class="flex items-center">
+                    <!-- Mobile menu button -->
+                    <button
+                        type="button"
+                        class="mobile-menu-btn md:hidden -ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary transition-all duration-200"
+                        @click="mobileMenuOpen = true"
+                    >
+                        <span class="sr-only">Abrir menu</span>
+                        <Menu class="h-6 w-6 transition-transform duration-200" />
+                    </button>
+                    <h1 class="ml-2 md:ml-0 text-lg font-semibold text-gray-900">
+                        {{ currentPageTitle }}
+                    </h1>
+                </div>
 
                 <!-- User menu -->
                 <div class="flex items-center space-x-4">
@@ -49,7 +117,7 @@
             </div>
 
             <!-- Page content -->
-            <main class="flex-1 overflow-y-auto p-6">
+            <main class="flex-1 overflow-y-auto p-4 md:p-6">
                 <slot />
             </main>
         </div>
@@ -57,7 +125,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import type { User } from '@supabase/supabase-js';
 import {
     Home,
@@ -73,6 +141,8 @@ import {
     Settings,
     Bell,
     Cog,
+    Menu,
+    X,
 } from 'lucide-vue-next';
 
 import { useRouter } from 'vue-router';
@@ -100,6 +170,9 @@ const emit = defineEmits<Emits>();
 
 const router = useRouter();
 const authStore = useAuthStore();
+
+// Mobile menu state
+const mobileMenuOpen = ref(false);
 
 const profile = computed(() => authStore.profile);
 const user = computed(() => authStore.user);
@@ -157,3 +230,59 @@ const handleLogout = async (e: any) => {
     emit('logout');
 };
 </script>
+
+<style scoped>
+/* Overlay transitions */
+.overlay-enter-active,
+.overlay-leave-active {
+    transition: all 0.3s ease;
+}
+
+.overlay-enter-from,
+.overlay-leave-to {
+    opacity: 0;
+}
+
+/* Backdrop fade transitions */
+.backdrop-enter-active,
+.backdrop-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.backdrop-enter-from,
+.backdrop-leave-to {
+    opacity: 0;
+}
+
+/* Sidebar slide transitions */
+.slide-right-enter-active,
+.slide-right-leave-active {
+    transition: transform 0.3s ease-out;
+}
+
+.slide-right-enter-from,
+.slide-right-leave-to {
+    transform: translateX(-100%);
+}
+
+/* Mobile menu button hover effect */
+.mobile-menu-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: scale(1.05);
+}
+
+/* Enhanced focus states for accessibility */
+.mobile-menu-btn:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Smooth transitions for navigation links */
+.nav-link {
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+    transform: translateX(4px);
+}
+</style>
