@@ -224,7 +224,7 @@ const pageTitle = computed(() => {
 
 const currentPageTitle = computed(() => pageTitle.value);
 
-const handleLogout = async (e: any) => {
+const handleLogout = async () => {
     await authStore.signOut();
     await router.push('/login');
     emit('logout');

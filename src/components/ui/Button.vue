@@ -1,15 +1,10 @@
 <template>
-    <button
-        :class="cn(buttonVariants({ variant, size, class: $attrs.class }))"
-        :disabled="disabled"
-        v-bind="$attrs"
-    >
+    <button :class="cn(buttonVariants({ variant, size }), $attrs.class as string)" :disabled="disabled" v-bind="$attrs">
         <slot />
     </button>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
@@ -39,7 +34,7 @@ const buttonVariants = cva(
             variant: 'default',
             size: 'default',
         },
-    },
+    }
 );
 
 interface Props extends /* @vue-ignore */ VariantProps<typeof buttonVariants> {
@@ -47,7 +42,7 @@ interface Props extends /* @vue-ignore */ VariantProps<typeof buttonVariants> {
     loading?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
     disabled: false,
     loading: false,
 });

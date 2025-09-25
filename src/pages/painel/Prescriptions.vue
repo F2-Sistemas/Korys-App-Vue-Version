@@ -3,9 +3,7 @@
         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
                 <h1 class="text-3xl font-bold tracking-tight">Prescrições</h1>
-                <p class="text-muted-foreground">
-                    Gerencie prescrições médicas e medicamentos
-                </p>
+                <p class="text-muted-foreground">Gerencie prescrições médicas e medicamentos</p>
             </div>
             <Button @click="openAddPrescriptionDialog">
                 <Plus class="mr-2 h-4 w-4" />
@@ -62,14 +60,15 @@
         <Card>
             <CardHeader>
                 <CardTitle>Prescrições Recentes</CardTitle>
-                <CardDescription>
-                    Últimas prescrições emitidas no sistema
-                </CardDescription>
+                <CardDescription>Últimas prescrições emitidas no sistema</CardDescription>
             </CardHeader>
             <CardContent>
                 <div class="space-y-4">
-                    <div v-for="prescription in recentPrescriptions" :key="prescription.id"
-                         class="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                        v-for="prescription in recentPrescriptions"
+                        :key="prescription.id"
+                        class="flex items-center justify-between p-4 border rounded-lg"
+                    >
                         <div class="flex items-center space-x-4">
                             <div class="p-2 rounded-lg bg-prescription/10">
                                 <Pill class="h-4 w-4 text-prescription" />
@@ -83,7 +82,7 @@
                         </div>
                         <div class="text-right">
                             <p class="text-sm font-medium">{{ prescription.date }}</p>
-                            <Badge :variant="prescription.statusVariant" class="mt-1">
+                            <Badge :variant="prescription.statusVariant as any" class="mt-1">
                                 {{ prescription.status }}
                             </Badge>
                         </div>

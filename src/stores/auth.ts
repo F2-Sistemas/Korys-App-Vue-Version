@@ -4,6 +4,7 @@ import type { User, Session } from '@supabase/supabase-js';
 import { toast } from 'vue3-toastify';
 import { supabase } from '@/integrations/supabase/client';
 import type { Profile } from '@/composables/useProfiles';
+import type { Database } from '@/integrations/supabase/types';
 
 export const useAuthStore = defineStore('auth', () => {
     const user = ref<User | null>(null);
@@ -81,7 +82,7 @@ export const useAuthStore = defineStore('auth', () => {
                 const email = user.email || `${user.id}@example.com`;
                 const { error: insertError } = await supabase
                     .from('profiles')
-                    .insert({ user_id: user.id, name, email });
+                    .insert({ user_id: user.id, name, email } as Database['public']['Tables']['profiles']['Insert']);
 
                 if (insertError) {
                     console.error('Error creating profile:', insertError);
@@ -141,7 +142,7 @@ export const useAuthStore = defineStore('auth', () => {
         return { error };
     };
 
-    const updateProfile = async (updates: Partial<Profile>) => {
+    const updateProfile = async (updates: Database['public']['Tables']['profiles']['Update']) => {
         if (!user.value) throw new Error('No user logged in');
 
         const { error } = await supabase.from('profiles').update(updates).eq('user_id', user.value.id);

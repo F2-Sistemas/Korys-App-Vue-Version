@@ -1,9 +1,8 @@
 <template>
     <tr
-        :class="cn(
-            'border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
-            $attrs.class
-        )"
+        :class="
+            cn('border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted', $attrs.class as string)
+        "
     >
         <slot />
     </tr>

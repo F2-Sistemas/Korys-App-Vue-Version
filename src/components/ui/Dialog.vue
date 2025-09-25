@@ -9,21 +9,19 @@
                 @click="onOverlayClick"
             >
                 <Transition name="backdrop">
-                    <div
-                        v-if="open"
-                        class="fixed inset-0 bg-black/50 transition-opacity"
-                        @click="onOverlayClick"
-                    />
+                    <div v-if="open" class="fixed inset-0 bg-black/50 transition-opacity" @click="onOverlayClick" />
                 </Transition>
 
                 <Transition name="content">
                     <div
                         v-if="open"
-                        :class="cn(
-                            'relative bg-background p-6 shadow-lg duration-200 sm:rounded-lg',
-                            'w-full max-w-lg mx-4',
-                            $attrs.class
-                        )"
+                        :class="
+                            cn(
+                                'relative bg-background p-6 shadow-lg duration-200 sm:rounded-lg',
+                                'w-full max-w-lg mx-4',
+                                $attrs.class as string
+                            )
+                        "
                         @click.stop
                     >
                         <slot />

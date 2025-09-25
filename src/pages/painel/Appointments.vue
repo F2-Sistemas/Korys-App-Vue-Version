@@ -3,9 +3,7 @@
         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
                 <h1 class="text-3xl font-bold tracking-tight">Consultas</h1>
-                <p class="text-muted-foreground">
-                    Gerencie os agendamentos e consultas médicas
-                </p>
+                <p class="text-muted-foreground">Gerencie os agendamentos e consultas médicas</p>
             </div>
             <div class="flex gap-2">
                 <Button variant="outline" size="sm">
@@ -94,9 +92,7 @@
         <Card>
             <CardHeader>
                 <CardTitle>Lista de Consultas</CardTitle>
-                <CardDescription>
-                    Total de {{ filteredAppointments.length }} consultas encontradas
-                </CardDescription>
+                <CardDescription>Total de {{ filteredAppointments.length }} consultas encontradas</CardDescription>
             </CardHeader>
             <CardContent>
                 <Table>
@@ -172,17 +168,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import {
-    CalendarPlus,
-    Calendar,
-    Clock,
-    AlertCircle,
-    User,
-    Eye,
-    Edit,
-    X,
-} from 'lucide-vue-next';
-import { cn } from '@/lib/utils';
+import { CalendarPlus, Calendar, Clock, AlertCircle, User, Eye, Edit, X } from 'lucide-vue-next';
+// import { cn } from '@/lib/utils';
 
 // Import UI components
 import Card from '@/components/ui/Card.vue';

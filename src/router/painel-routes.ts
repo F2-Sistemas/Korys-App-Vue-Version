@@ -1,9 +1,8 @@
+import type { RouteRecordRaw } from 'vue-router';
+
 export default [
     {
         path: '',
-        name: 'Index',
-        component: () => import('@/pages/painel/Index.vue'),
-        meta: { requiresAuth: true },
         redirect: '/painel/dashboard',
     },
     {
@@ -114,4 +113,4 @@ export default [
         name: 'NotFound',
         component: () => import('@/pages/errors/NotFound.vue'),
     },
-];
+] as RouteRecordRaw[];

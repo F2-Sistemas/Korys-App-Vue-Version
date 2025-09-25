@@ -69,7 +69,7 @@ interface Emits {
     'navigate-to-feedback': [];
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const isOpen = ref(false);

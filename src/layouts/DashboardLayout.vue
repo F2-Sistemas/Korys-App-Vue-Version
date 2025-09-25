@@ -1,5 +1,5 @@
 <template>
-    <AppLayout>
+    <AppLayout currentPage="" :user="null" :profile="null">
         <transition>
             <router-view></router-view>
         </transition>

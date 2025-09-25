@@ -3,9 +3,7 @@
         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
                 <h1 class="text-3xl font-bold tracking-tight">Pacientes</h1>
-                <p class="text-muted-foreground">
-                    Gerencie os pacientes cadastrados no sistema
-                </p>
+                <p class="text-muted-foreground">Gerencie os pacientes cadastrados no sistema</p>
             </div>
             <div class="flex gap-2">
                 <Button variant="outline" size="sm">
@@ -49,9 +47,7 @@
         <Card>
             <CardHeader>
                 <CardTitle>Lista de Pacientes</CardTitle>
-                <CardDescription>
-                    Total de {{ filteredPatients.length }} pacientes encontrados
-                </CardDescription>
+                <CardDescription>Total de {{ filteredPatients.length }} pacientes encontrados</CardDescription>
             </CardHeader>
             <CardContent>
                 <Table>
@@ -75,9 +71,7 @@
                                     </div>
                                     <div>
                                         <div class="font-medium">{{ patient.name }}</div>
-                                        <div class="text-sm text-muted-foreground">
-                                            {{ patient.age }} anos
-                                        </div>
+                                        <div class="text-sm text-muted-foreground">{{ patient.age }} anos</div>
                                     </div>
                                 </div>
                             </TableCell>
@@ -135,18 +129,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import {
-    UserPlus,
-    Download,
-    User,
-    Eye,
-    Edit,
-    Trash2,
-    Users,
-    UserCheck,
-    UserX,
-    Clock,
-} from 'lucide-vue-next';
+import { UserPlus, Download, User, Eye, Edit, Trash2, Users, UserCheck, UserX, Clock } from 'lucide-vue-next';
 import { cn } from '@/lib/utils';
 
 // Import UI components
@@ -247,9 +230,7 @@ const filteredPatients = computed(() => {
     // Filter by status
     const activeStatusFilters = statusFilters.value.filter((filter) => filter.active);
     if (activeStatusFilters.length > 0 && !activeStatusFilters.some((filter) => filter.value === 'all')) {
-        filtered = filtered.filter((patient) =>
-            activeStatusFilters.some((filter) => filter.value === patient.status)
-        );
+        filtered = filtered.filter((patient) => activeStatusFilters.some((filter) => filter.value === patient.status));
     }
 
     return filtered;

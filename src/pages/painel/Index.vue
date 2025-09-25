@@ -31,19 +31,19 @@ import { supabase } from '@/integrations/supabase/client';
 // Lazy-loaded components
 import AppLayout from '@/components/AppLayout.vue';
 
-const Dashboard = () => import('@/components/Dashboard.vue');
-const Patients = () => import('@/components/Patients.vue');
-const Appointments = () => import('@/components/Appointments.vue');
-const AgendaCalendar = () => import('@/components/AgendaCalendar.vue');
-const Prescriptions = () => import('@/components/Prescriptions.vue');
-const ExamRequests = () => import('@/components/ExamRequests.vue');
-const Financeiro = () => import('@/views/Financeiro.vue');
-const Reports = () => import('@/components/Reports.vue');
-const Status = () => import('@/views/Status.vue');
-const ProfessionalNetwork = () => import('@/components/ProfessionalNetwork.vue');
-const ProfileSettings = () => import('@/components/ProfileSettings.vue');
-const NotificationCenter = () => import('@/components/NotificationCenter.vue');
-const NotificationSettings = () => import('@/components/NotificationSettings.vue');
+const Dashboard = () => import('@/pages/painel/Dashboard.vue');
+const Patients = () => import('@/pages/painel/Patients.vue');
+const Appointments = () => import('@/pages/painel/Appointments.vue');
+const AgendaCalendar = () => import('@/pages/painel/AgendaCalendar.vue');
+const Prescriptions = () => import('@/pages/painel/Prescriptions.vue');
+const ExamRequests = () => import('@/pages/painel/ExamRequests.vue');
+const Financeiro = () => import('@/pages/painel/Financeiro.vue');
+const Reports = () => import('@/pages/painel/Reports.vue');
+const Status = () => import('@/pages/painel/Status.vue');
+const ProfessionalNetwork = () => import('@/pages/painel/ProfessionalNetwork.vue');
+const ProfileSettings = () => import('@/pages/painel/ProfileSettings.vue');
+const NotificationCenter = () => import('@/pages/painel/NotificationCenter.vue');
+const NotificationSettings = () => import('@/pages/painel/NotificationSettings.vue');
 
 const router = useRouter();
 const authStore = useAuthStore();

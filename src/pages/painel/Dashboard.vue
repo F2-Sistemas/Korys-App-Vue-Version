@@ -2,9 +2,7 @@
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <div class="text-sm text-muted-foreground">
-                Bem-vindo, {{ profile?.name || 'Usuário' }}! 👋
-            </div>
+            <div class="text-sm text-muted-foreground">Bem-vindo, {{ profile?.name || 'Usuário' }}! 👋</div>
         </div>
 
         <!-- Stats Grid -->
@@ -24,7 +22,7 @@
                             <p class="text-2xl font-semibold">
                                 {{ stat.value }}
                             </p>
-                            <Badge v-if="stat.trend" :variant="stat.trendType" class="ml-2">
+                            <Badge v-if="stat.trend" :variant="stat.trendType as any" class="ml-2">
                                 {{ stat.trend }}
                             </Badge>
                         </div>
@@ -44,7 +42,7 @@
                     <Button
                         v-for="action in quickActions"
                         :key="action.name"
-                        :variant="action.variant"
+                        :variant="action.variant as any"
                         class="h-auto p-6 flex-col space-y-2 text-center"
                         @click="action.onClick"
                     >
@@ -78,7 +76,7 @@
                             <p class="text-sm text-muted-foreground">{{ activity.description }}</p>
                             <div class="flex items-center space-x-2">
                                 <Badge variant="outline" class="text-xs">{{ activity.time }}</Badge>
-                                <Badge :variant="activity.statusVariant" class="text-xs">
+                                <Badge :variant="activity.statusVariant as any" class="text-xs">
                                     {{ activity.status }}
                                 </Badge>
                             </div>
@@ -92,7 +90,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Users, Calendar, Pill, FileText, UserPlus, CalendarPlus, PlusCircle, Activity, TrendingUp } from 'lucide-vue-next';
+import { Users, Calendar, Pill, FileText, UserPlus, CalendarPlus, PlusCircle } from 'lucide-vue-next';
 import { useAuthStore } from '@/stores/auth';
 import { cn } from '@/lib/utils';
 

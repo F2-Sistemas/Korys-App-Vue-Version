@@ -1,14 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 
-export interface Profile {
-    id: string;
-    user_id: string;
-    name: string;
-    email: string;
-    created_at: string;
-    updated_at: string;
-}
+export type Profile = Database['public']['Tables']['profiles']['Row'];
 
 export const useProfiles = () => {
     const queryClient = useQueryClient();
@@ -31,7 +25,13 @@ export const useProfiles = () => {
     });
 
     const updateProfileMutation = useMutation({
-        mutationFn: async ({ id, updates }: { id: string; updates: Partial<Profile> }) => {
+        mutationFn: async ({
+            id,
+            updates,
+        }: {
+            id: string;
+            updates: Database['public']['Tables']['profiles']['Update'];
+        }) => {
             const { error } = await supabase.from('profiles').update(updates).eq('id', id);
 
             if (error) throw error;

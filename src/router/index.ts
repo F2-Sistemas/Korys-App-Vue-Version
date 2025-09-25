@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
-import BaseLayout from '@/layouts/BaseLayout.vue';
+// import BaseLayout from '@/layouts/BaseLayout.vue';
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 
 import painelRoutes from '@/router/painel-routes';
@@ -12,8 +12,6 @@ const router = createRouter({
         {
             path: '/',
             name: 'Index',
-            component: () => import('@/pages/painel/Index.vue'),
-            meta: { requiresAuth: true },
             redirect: '/painel',
         },
         {
@@ -50,16 +48,7 @@ const router = createRouter({
             component: () => import('@/pages/errors/NotFound.vue'),
         },
         {
-            path: '/',
-            component: BaseLayout,
-            children: [
-                { path: '', name: 'home', component: () => import('@/pages/Page.vue') },
-                { path: 'about', name: 'about', component: () => import('@/pages/Page.vue') },
-            ],
-        },
-        {
             path: '/painel',
-            name: 'painel',
             component: DashboardLayout,
             children: painelRoutes || [],
         },

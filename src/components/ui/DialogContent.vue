@@ -1,5 +1,5 @@
 <template>
-    <div :class="cn('', $attrs.class)">
+    <div :class="cn('', $attrs.class as string)">
         <slot />
     </div>
 </template>
