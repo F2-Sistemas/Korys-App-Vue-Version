@@ -52,6 +52,20 @@ export default {
                     DEFAULT: 'hsl(var(--card))',
                     foreground: 'hsl(var(--card-foreground))',
                 },
+                success: {
+                    DEFAULT: 'hsl(var(--success))',
+                    foreground: 'hsl(var(--success-foreground))',
+                },
+                warning: {
+                    DEFAULT: 'hsl(var(--warning))',
+                    foreground: 'hsl(var(--warning-foreground))',
+                },
+                // Healthcare specific colors
+                patient: 'hsl(var(--patient))',
+                appointment: 'hsl(var(--appointment))',
+                prescription: 'hsl(var(--prescription))',
+                exam: 'hsl(var(--exam))',
+                financial: 'hsl(var(--financial))',
             },
             borderRadius: {
                 lg: 'var(--radius)',

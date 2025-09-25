@@ -10,20 +10,37 @@
         --card-foreground: 222.2 84% 4.9%;
         --popover: 0 0% 100%;
         --popover-foreground: 222.2 84% 4.9%;
-        --primary: 222.2 47.4% 11.2%;
+
+        /* Healthcare Design System Colors */
+        --primary: 195 100% 39%; /* Korys Health Blue */
         --primary-foreground: 210 40% 98%;
         --secondary: 210 40% 96%;
         --secondary-foreground: 222.2 47.4% 11.2%;
+        --accent: 168 76% 42%; /* Healthcare Teal */
+        --accent-foreground: 210 40% 98%;
+
+        /* Status Colors */
+        --success: 142 69% 58%; /* Green for success */
+        --success-foreground: 210 40% 98%;
+        --warning: 45 93% 58%; /* Amber for warnings */
+        --warning-foreground: 222.2 47.4% 11.2%;
+        --destructive: 0 84.2% 60.2%; /* Red for errors */
+        --destructive-foreground: 210 40% 98%;
+
+        /* UI Elements */
         --muted: 210 40% 96%;
         --muted-foreground: 215.4 16.3% 46.9%;
-        --accent: 210 40% 96%;
-        --accent-foreground: 222.2 47.4% 11.2%;
-        --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 210 40% 98%;
         --border: 214.3 31.8% 91.4%;
         --input: 214.3 31.8% 91.4%;
-        --ring: 222.2 47.4% 11.2%;
-        --radius: 0.5rem;
+        --ring: 195 100% 39%;
+        --radius: 0.75rem;
+
+        /* Healthcare Specific */
+        --patient: 195 100% 39%;
+        --appointment: 168 76% 42%;
+        --prescription: 142 69% 58%;
+        --exam: 45 93% 58%;
+        --financial: 258 90% 66%;
     }
 
     .dark {
@@ -33,19 +50,36 @@
         --card-foreground: 210 40% 98%;
         --popover: 222.2 84% 4.9%;
         --popover-foreground: 210 40% 98%;
-        --primary: 210 40% 98%;
+
+        /* Healthcare Design System Colors - Dark Mode */
+        --primary: 195 100% 50%;
         --primary-foreground: 222.2 47.4% 11.2%;
         --secondary: 217.2 32.6% 17.5%;
         --secondary-foreground: 210 40% 98%;
-        --muted: 217.2 32.6% 17.5%;
-        --muted-foreground: 215 20.2% 65.1%;
-        --accent: 217.2 32.6% 17.5%;
-        --accent-foreground: 210 40% 98%;
+        --accent: 168 76% 52%;
+        --accent-foreground: 222.2 47.4% 11.2%;
+
+        /* Status Colors - Dark Mode */
+        --success: 142 69% 58%;
+        --success-foreground: 222.2 47.4% 11.2%;
+        --warning: 45 93% 58%;
+        --warning-foreground: 222.2 47.4% 11.2%;
         --destructive: 0 62.8% 30.6%;
         --destructive-foreground: 210 40% 98%;
+
+        /* UI Elements - Dark Mode */
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
         --border: 217.2 32.6% 17.5%;
         --input: 217.2 32.6% 17.5%;
-        --ring: 212.7 26.8% 83.9%;
+        --ring: 195 100% 50%;
+
+        /* Healthcare Specific - Dark Mode */
+        --patient: 195 100% 50%;
+        --appointment: 168 76% 52%;
+        --prescription: 142 69% 58%;
+        --exam: 45 93% 58%;
+        --financial: 258 90% 70%;
     }
 }
 
