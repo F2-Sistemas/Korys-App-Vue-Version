@@ -7,20 +7,21 @@
                     <img class="h-8 w-auto" src="@/assets/korys-health-logo.png" alt="Korys Health" />
                 </div>
                 <nav class="mt-5 flex-1 px-2 bg-white space-y-1">
-                    <button
-                        v-for="item in navigation"
-                        :key="item.name"
-                        :class="[
-                            item.current
-                                ? 'bg-gray-100 text-gray-900'
-                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                            'group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left',
-                        ]"
-                        @click="$emit('navigate', item.href)"
-                    >
-                        <component :is="item.icon" class="mr-3 flex-shrink-0 h-5 w-5" />
-                        {{ item.name }}
-                    </button>
+                    <template v-for="item in navigation" :key="item.name">
+                        <router-link
+                            :class="[
+                                item.current
+                                    ? 'bg-gray-100 text-gray-900'
+                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                                'group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left',
+                            ]"
+                            @old-click="$emit('navigate', item.href)"
+                            :to="item.href"
+                        >
+                            <component :is="item.icon" class="mr-3 flex-shrink-0 h-5 w-5" />
+                            {{ item.name }}
+                        </router-link>
+                    </template>
                 </nav>
             </div>
         </div>
@@ -39,7 +40,7 @@
                     <UserDropdown
                         :user="user"
                         :profile="profile"
-                        @logout="$emit('logout')"
+                        @logout="handleLogout"
                         @navigate-to-profile="$emit('navigate-to-profile')"
                         @navigate-to-help="$emit('navigate-to-help')"
                         @navigate-to-feedback="$emit('navigate-to-feedback')"
@@ -73,6 +74,10 @@ import {
     Bell,
     Cog,
 } from 'lucide-vue-next';
+
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+
 import NotificationBell from '@/components/NotificationBell.vue';
 import UserDropdown from '@/components/UserDropdown.vue';
 
@@ -91,7 +96,13 @@ interface Emits {
 }
 
 const props = defineProps<Props>();
-defineEmits<Emits>();
+const emit = defineEmits<Emits>();
+
+const router = useRouter();
+const authStore = useAuthStore();
+
+const profile = computed(() => authStore.profile);
+const user = computed(() => authStore.user);
 
 const navigation = computed(() => [
     { name: 'Dashboard', href: 'dashboard', icon: Home, current: props.currentPage === 'dashboard' },
@@ -139,4 +150,10 @@ const pageTitle = computed(() => {
 });
 
 const currentPageTitle = computed(() => pageTitle.value);
+
+const handleLogout = async (e: any) => {
+    await authStore.signOut();
+    await router.push('/login');
+    emit('logout');
+};
 </script>

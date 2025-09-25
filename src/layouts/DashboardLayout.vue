@@ -1,17 +1,11 @@
 <template>
-    <div id="app">
+    <AppLayout>
         <transition>
             <router-view></router-view>
         </transition>
-    </div>
+    </AppLayout>
 </template>
 
 <script setup lang="ts">
-// Vue 3 App component with router-view
+import AppLayout from '@/components/AppLayout.vue';
 </script>
-
-<style>
-#app {
-    min-height: 100vh;
-}
-</style>

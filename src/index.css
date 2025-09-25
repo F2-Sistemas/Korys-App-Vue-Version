@@ -61,3 +61,7 @@
 [v-cloak] {
     display: none !important;
 }
+
+a:not(.cursor-not-allowed) {
+    cursor: pointer;
+}

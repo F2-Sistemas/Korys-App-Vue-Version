@@ -1,0 +1,117 @@
+export default [
+    {
+        path: '',
+        name: 'Index',
+        component: () => import('@/pages/painel/Index.vue'),
+        meta: { requiresAuth: true },
+        redirect: '/painel/dashboard',
+    },
+    {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/pages/painel/Profile.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'status',
+        name: 'Status',
+        component: () => import('@/pages/painel/Status.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'help-support',
+        name: 'HelpSupport',
+        component: () => import('@/pages/painel/HelpSupport.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'feedback',
+        name: 'Feedback',
+        component: () => import('@/pages/painel/Feedback.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('@/pages/painel/Dashboard.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'patients',
+        name: 'Patients',
+        component: () => import('@/pages/painel/Patients.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'appointments',
+        name: 'Appointments',
+        component: () => import('@/pages/painel/Appointments.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'agenda',
+        name: 'Agenda',
+        component: () => import('@/pages/painel/AgendaCalendar.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'prescriptions',
+        name: 'Prescriptions',
+        component: () => import('@/pages/painel/Prescriptions.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'exams',
+        name: 'Exams',
+        component: () => import('@/pages/painel/ExamRequests.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'financeiro',
+        name: 'Financeiro',
+        component: () => import('@/pages/painel/Financeiro.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'reports',
+        name: 'Reports',
+        component: () => import('@/pages/painel/Reports.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'rede-profissional',
+        name: 'ProfessionalNetwork',
+        component: () => import('@/pages/painel/ProfessionalNetwork.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'perfil',
+        name: 'ProfileSettings',
+        component: () => import('@/pages/painel/ProfileSettings.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'notificacoes',
+        name: 'Notifications',
+        component: () => import('@/pages/painel/NotificationCenter.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: 'configuracoes-notificacao',
+        name: 'NotificationSettings',
+        component: () => import('@/pages/painel/NotificationSettings.vue'),
+        meta: { requiresAuth: true },
+    },
+
+    { path: '', name: 'dashboard.home', component: () => import('@/pages/painel/Index.vue') },
+    {
+        path: 'settings',
+        name: 'dashboard.settings',
+        component: () => import('@/pages/painel/DemoPage.vue'),
+    },
+    {
+        path: ':pathMatch(.*)*',
+        name: 'NotFound',
+        component: () => import('@/pages/errors/NotFound.vue'),
+    },
+];

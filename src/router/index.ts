@@ -1,14 +1,20 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
+import BaseLayout from '@/layouts/BaseLayout.vue';
+import DashboardLayout from '@/layouts/DashboardLayout.vue';
+
+import painelRoutes from '@/router/painel-routes';
+
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
             path: '/',
             name: 'Index',
-            component: () => import('@/views/Index.vue'),
+            component: () => import('@/pages/painel/Index.vue'),
             meta: { requiresAuth: true },
+            redirect: '/painel',
         },
         {
             path: '/login',
@@ -39,33 +45,23 @@ const router = createRouter({
             component: () => import('@/views/PrivacyPolicy.vue'),
         },
         {
-            path: '/profile',
-            name: 'Profile',
-            component: () => import('@/views/Profile.vue'),
-            meta: { requiresAuth: true },
-        },
-        {
-            path: '/status',
-            name: 'Status',
-            component: () => import('@/views/Status.vue'),
-            meta: { requiresAuth: true },
-        },
-        {
-            path: '/help-support',
-            name: 'HelpSupport',
-            component: () => import('@/views/HelpSupport.vue'),
-            meta: { requiresAuth: true },
-        },
-        {
-            path: '/feedback',
-            name: 'Feedback',
-            component: () => import('@/views/Feedback.vue'),
-            meta: { requiresAuth: true },
-        },
-        {
             path: '/:pathMatch(.*)*',
             name: 'NotFound',
-            component: () => import('@/views/NotFound.vue'),
+            component: () => import('@/pages/errors/NotFound.vue'),
+        },
+        {
+            path: '/',
+            component: BaseLayout,
+            children: [
+                { path: '', name: 'home', component: () => import('@/pages/Page.vue') },
+                { path: 'about', name: 'about', component: () => import('@/pages/Page.vue') },
+            ],
+        },
+        {
+            path: '/painel',
+            name: 'painel',
+            component: DashboardLayout,
+            children: painelRoutes || [],
         },
     ],
 });
@@ -82,7 +78,7 @@ router.beforeEach(async (to) => {
     }
 
     if (to.meta.requiresGuest && authStore.user) {
-        return '/';
+        return '/painel';
     }
 
     return true;

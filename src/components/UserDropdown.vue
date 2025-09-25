@@ -5,7 +5,7 @@
             @click="isOpen = !isOpen"
         >
             <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                <User class="w-4 h-4 text-white" />
+                <UserIcon class="w-4 h-4 text-white" />
             </div>
         </button>
 
@@ -19,7 +19,7 @@
                 class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 @click="handleProfileClick"
             >
-                <User class="w-4 h-4 inline mr-2" />
+                <UserIcon class="w-4 h-4 inline mr-2" />
                 Perfil
             </button>
 
@@ -69,7 +69,7 @@ interface Emits {
     'navigate-to-feedback': [];
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const isOpen = ref(false);

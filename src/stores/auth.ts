@@ -24,6 +24,8 @@ export const useAuthStore = defineStore('auth', () => {
             setUser(session?.user ?? null);
             loading.value = false;
 
+            console.log('event', event);
+
             if (session?.user) {
                 await ensureProfileExists(session.user);
                 await fetchProfile(session.user.id);
@@ -133,7 +135,10 @@ export const useAuthStore = defineStore('auth', () => {
     };
 
     const signOut = async () => {
-        await supabase.auth.signOut();
+        // await supabase.auth.signOut();
+        const { error } = await supabase.auth.signOut({ scope: 'local' });
+
+        return { error };
     };
 
     const updateProfile = async (updates: Partial<Profile>) => {

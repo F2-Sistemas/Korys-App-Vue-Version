@@ -78,7 +78,7 @@ watch(
     (newUser) => {
         if (newUser && !authStore.loading) {
             loading.value = false;
-            router.push('/');
+            router.push('/painel');
         }
     },
     { immediate: true }
