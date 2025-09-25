@@ -281,7 +281,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import moment from 'moment';
 import Card from '@/components/ui/Card.vue';
 import CardContent from '@/components/ui/CardContent.vue';
@@ -295,6 +295,7 @@ import DialogTitle from '@/components/ui/DialogTitle.vue';
 import DialogFooter from '@/components/ui/DialogFooter.vue';
 import { ChevronLeft, ChevronRight, User } from 'lucide-vue-next';
 import { useAppointments, type Appointment } from '@/composables/useAppointments';
+import { supabase } from '@/integrations/supabase/client';
 
 // Set moment locale to Portuguese
 moment.locale('pt-br');
@@ -304,7 +305,7 @@ const currentDate = ref(new Date());
 const showAppointmentDialog = ref(false);
 const selectedAppointment = ref<Appointment | null>(null);
 
-const { appointments, scheduledAppointments, loading, fetchAppointments } = useAppointments();
+const { appointments, scheduledAppointments, loading, fetchAppointments, setupRealtimeSubscription } = useAppointments();
 
 // Week days in Portuguese
 const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -355,6 +356,33 @@ const navigateDate = (direction: number) => {
     }
 
     currentDate.value = newDate.toDate();
+
+    // Fetch appointments for the new date range
+    fetchAppointmentsForCurrentView();
+};
+
+const fetchAppointmentsForCurrentView = () => {
+    let startDate: string;
+    let endDate: string;
+
+    if (currentView.value === 'month') {
+        // Get the entire month view including overflow days
+        const start = moment(currentDate.value).startOf('month').startOf('week');
+        const end = moment(currentDate.value).endOf('month').endOf('week');
+        startDate = start.format('YYYY-MM-DD');
+        endDate = end.format('YYYY-MM-DD');
+    } else if (currentView.value === 'week') {
+        const start = moment(currentDate.value).startOf('week');
+        const end = moment(currentDate.value).endOf('week');
+        startDate = start.format('YYYY-MM-DD');
+        endDate = end.format('YYYY-MM-DD');
+    } else {
+        // Day view - just get the current day
+        startDate = moment(currentDate.value).format('YYYY-MM-DD');
+        endDate = startDate;
+    }
+
+    fetchAppointments(startDate, endDate);
 };
 
 const formatDate = (date: Date, format: string) => {
@@ -406,9 +434,29 @@ const getStatusLabel = (status: string) => {
     return labels[status] || status;
 };
 
-onMounted(() => {
-    fetchAppointments();
+// Watch for view changes to fetch appropriate data
+const currentViewWatcher = watch(currentView, () => {
+    fetchAppointmentsForCurrentView();
 });
+
+onMounted(() => {
+    // Initial load
+    fetchAppointmentsForCurrentView();
+
+    // Setup realtime subscription
+    const channel = setupRealtimeSubscription();
+
+    // Cleanup on unmount
+    onUnmounted(() => {
+        currentViewWatcher();
+        if (channel && 'unsubscribe' in channel) {
+            channel.unsubscribe();
+        } else if (channel) {
+            (supabase as any).removeChannel(channel);
+        }
+    });
+});
+
 </script>
 
 <style scoped>
