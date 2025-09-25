@@ -57,3 +57,7 @@
         @apply bg-background text-foreground;
     }
 }
+
+[v-cloak] {
+    display: none !important;
+}

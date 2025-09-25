@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div v-cloak class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-8">
             <div>
                 <img class="mx-auto h-12 w-auto" src="@/assets/korys-health-logo.png" alt="Korys Health" />
@@ -59,8 +59,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { toast } from 'vue3-toastify';
 import { Loader2 } from 'lucide-vue-next';
 import { useAuthStore } from '@/stores/auth';
 
@@ -71,8 +72,23 @@ const email = ref('');
 const password = ref('');
 const loading = ref(false);
 
+// Watch for authentication changes and redirect
+watch(
+    () => authStore.user,
+    (newUser) => {
+        if (newUser && !authStore.loading) {
+            loading.value = false;
+            router.push('/');
+        }
+    },
+    { immediate: true }
+);
+
 const handleLogin = async () => {
-    if (!email.value || !password.value) return;
+    if (!email.value || !password.value) {
+        toast.warning('Por favor, preencha todos os campos');
+        return;
+    }
 
     loading.value = true;
 
@@ -81,11 +97,24 @@ const handleLogin = async () => {
 
         if (error) {
             console.error('Login error:', error.message);
-            // Handle error (show toast, etc.)
+
+            // Handle different error types with appropriate messages
+            if (error.message.includes('Invalid login credentials')) {
+                toast.error('Email ou senha incorretos');
+            } else if (error.message.includes('Email not confirmed')) {
+                toast.warning('Confirme seu email antes de fazer login');
+            } else {
+                toast.error(`Erro no login: ${error.message}`);
+            }
+            loading.value = false;
         } else {
-            router.push('/');
+            // Wait for auth state to update, then redirect will happen via router guard
+            // Success toast will be shown by auth store
+            // Don't set loading to false here - let the auth state change handle it
         }
-    } finally {
+    } catch (err) {
+        console.error('Unexpected login error:', err);
+        toast.error('Erro inesperado. Tente novamente.');
         loading.value = false;
     }
 };

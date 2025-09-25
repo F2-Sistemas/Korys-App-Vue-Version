@@ -50,22 +50,23 @@ const authStore = useAuthStore();
 
 const currentPage = ref('dashboard');
 
-const currentComponent = computed(() => {
-    const components = {
-        dashboard: Dashboard,
-        patients: Patients,
-        appointments: Appointments,
-        agenda: AgendaCalendar,
-        prescriptions: Prescriptions,
-        exams: ExamRequests,
-        financeiro: Financeiro,
-        reports: Reports,
-        status: Status,
-        'rede-profissional': ProfessionalNetwork,
-        perfil: ProfileSettings,
-        notificacoes: NotificationCenter,
-        'configuracoes-notificacao': NotificationSettings,
-    };
+const components = {
+    dashboard: Dashboard,
+    patients: Patients,
+    appointments: Appointments,
+    agenda: AgendaCalendar,
+    prescriptions: Prescriptions,
+    exams: ExamRequests,
+    financeiro: Financeiro,
+    reports: Reports,
+    status: Status,
+    'rede-profissional': ProfessionalNetwork,
+    perfil: ProfileSettings,
+    notificacoes: NotificationCenter,
+    'configuracoes-notificacao': NotificationSettings,
+};
+
+const currentComponent = computed(async () => {
     return components[currentPage.value as keyof typeof components] || Dashboard;
 });
 

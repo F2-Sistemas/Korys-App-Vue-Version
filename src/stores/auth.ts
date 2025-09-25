@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { User, Session } from '@supabase/supabase-js';
+import { toast } from 'vue3-toastify';
 import { supabase } from '@/integrations/supabase/client';
 import type { Profile } from '@/composables/useProfiles';
 
@@ -9,12 +10,16 @@ export const useAuthStore = defineStore('auth', () => {
     const session = ref<Session | null>(null);
     const profile = ref<Profile | null>(null);
     const loading = ref(true);
+    const initialized = ref(false);
 
     const isAuthenticated = computed(() => !!user.value);
 
     const initialize = async () => {
+        if (initialized.value) return;
+        initialized.value = true;
         // Set up auth state listener
         supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('Auth state change:', event, session?.user?.email);
             setSession(session);
             setUser(session?.user ?? null);
             loading.value = false;
@@ -22,8 +27,18 @@ export const useAuthStore = defineStore('auth', () => {
             if (session?.user) {
                 await ensureProfileExists(session.user);
                 await fetchProfile(session.user.id);
+
+                // Show success toast on login
+                if (event === 'SIGNED_IN') {
+                    toast.success(`Bem-vindo, ${session.user.email}!`);
+                }
             } else {
                 profile.value = null;
+
+                // Show info toast on logout
+                if (event === 'SIGNED_OUT') {
+                    toast.info('Você foi desconectado com sucesso');
+                }
             }
         });
 
@@ -55,6 +70,7 @@ export const useAuthStore = defineStore('auth', () => {
 
             if (error) {
                 console.error('Error checking profile:', error);
+                toast.error('Erro ao verificar perfil do usuário');
                 return;
             }
 
@@ -67,10 +83,12 @@ export const useAuthStore = defineStore('auth', () => {
 
                 if (insertError) {
                     console.error('Error creating profile:', insertError);
+                    toast.error('Erro ao criar perfil do usuário');
                 }
             }
         } catch (e) {
             console.error('ensureProfileExists error:', e);
+            toast.error('Erro inesperado ao configurar perfil');
         }
     };
 

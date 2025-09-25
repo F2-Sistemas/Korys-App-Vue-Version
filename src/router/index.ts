@@ -5,6 +5,12 @@ const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
+            path: '/',
+            name: 'Index',
+            component: () => import('@/views/Index.vue'),
+            meta: { requiresAuth: true },
+        },
+        {
             path: '/login',
             name: 'Login',
             component: () => import('@/views/Login.vue'),
@@ -31,12 +37,6 @@ const router = createRouter({
             path: '/privacy-policy',
             name: 'PrivacyPolicy',
             component: () => import('@/views/PrivacyPolicy.vue'),
-        },
-        {
-            path: '/',
-            name: 'Index',
-            component: () => import('@/views/Index.vue'),
-            meta: { requiresAuth: true },
         },
         {
             path: '/profile',
@@ -71,8 +71,11 @@ const router = createRouter({
 });
 
 // Navigation guards
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
     const authStore = useAuthStore();
+
+    // Ensure auth is initialized before checking routes
+    await authStore.initialize();
 
     if (to.meta.requiresAuth && !authStore.user) {
         return '/login';
