@@ -41,7 +41,6 @@ export const useAppointments = () => {
             // Check if Supabase client is properly configured
             console.log('Supabase client configured:', {
                 hasSupabase: !!supabase,
-                supabaseUrl: supabase?.supabaseUrl,
             });
 
             // Try real Supabase query first
