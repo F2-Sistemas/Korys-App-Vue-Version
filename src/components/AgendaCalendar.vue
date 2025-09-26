@@ -7,13 +7,13 @@
             </div>
         </div>
 
-        <Card v-if="loading" class="h-full">
+        <Card v-if="loading" class="w-full">
             <CardContent class="flex items-center justify-center py-12">
                 <div class="text-muted-foreground">Carregando agenda...</div>
             </CardContent>
         </Card>
 
-        <Card v-else class="h-full">
+        <Card class="h-full">
             <CardHeader class="pb-3">
                 <div class="flex flex-col gap-3">
                     <!-- View Controls - Mobile Optimized -->
@@ -281,20 +281,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+
+import { ChevronLeft, ChevronRight, User } from 'lucide-vue-next';
 import moment from 'moment';
+
+import Badge from '@/components/ui/Badge.vue';
+import Button from '@/components/ui/Button.vue';
 import Card from '@/components/ui/Card.vue';
 import CardContent from '@/components/ui/CardContent.vue';
 import CardHeader from '@/components/ui/CardHeader.vue';
-import Button from '@/components/ui/Button.vue';
-import Badge from '@/components/ui/Badge.vue';
 import Dialog from '@/components/ui/Dialog.vue';
 import DialogContent from '@/components/ui/DialogContent.vue';
+import DialogFooter from '@/components/ui/DialogFooter.vue';
 import DialogHeader from '@/components/ui/DialogHeader.vue';
 import DialogTitle from '@/components/ui/DialogTitle.vue';
-import DialogFooter from '@/components/ui/DialogFooter.vue';
-import { ChevronLeft, ChevronRight, User } from 'lucide-vue-next';
-import { useAppointments, type Appointment } from '@/composables/useAppointments';
+import { type Appointment, useAppointments } from '@/composables/useAppointments';
 import { supabase } from '@/integrations/supabase/client';
 
 // Set moment locale to Portuguese
@@ -305,7 +307,8 @@ const currentDate = ref(new Date());
 const showAppointmentDialog = ref(false);
 const selectedAppointment = ref<Appointment | null>(null);
 
-const { appointments, scheduledAppointments, loading, fetchAppointments, setupRealtimeSubscription } = useAppointments();
+const { appointments, scheduledAppointments, loading, fetchAppointments, setupRealtimeSubscription } =
+    useAppointments();
 
 // Week days in Portuguese
 const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -361,7 +364,9 @@ const navigateDate = (direction: number) => {
     fetchAppointmentsForCurrentView();
 };
 
-const fetchAppointmentsForCurrentView = () => {
+const fetchAppointmentsForCurrentView = async () => {
+    console.log('fetchAppointmentsForCurrentView called with view:', currentView.value);
+
     let startDate: string;
     let endDate: string;
 
@@ -382,7 +387,8 @@ const fetchAppointmentsForCurrentView = () => {
         endDate = startDate;
     }
 
-    fetchAppointments(startDate, endDate);
+    console.log('Fetching appointments from', startDate, 'to', endDate);
+    await fetchAppointments(startDate, endDate);
 };
 
 const formatDate = (date: Date, format: string) => {
@@ -436,27 +442,37 @@ const getStatusLabel = (status: string) => {
 
 // Watch for view changes to fetch appropriate data
 const currentViewWatcher = watch(currentView, () => {
+    console.log('View changed to:', currentView.value);
     fetchAppointmentsForCurrentView();
 });
 
-onMounted(() => {
-    // Initial load
-    fetchAppointmentsForCurrentView();
+let realtimeChannel: any = null;
+
+onMounted(async () => {
+    console.log('AgendaCalendar mounted!');
+
+    await fetchAppointments('2025-09-01', '2025-09-30');
+
+    // Initial load with current view optimization
+    await fetchAppointmentsForCurrentView();
 
     // Setup realtime subscription
-    const channel = setupRealtimeSubscription();
-
-    // Cleanup on unmount
-    onUnmounted(() => {
-        currentViewWatcher();
-        if (channel && 'unsubscribe' in channel) {
-            channel.unsubscribe();
-        } else if (channel) {
-            (supabase as any).removeChannel(channel);
-        }
-    });
+    realtimeChannel = setupRealtimeSubscription();
 });
 
+onUnmounted(async () => {
+    console.log('AgendaCalendar unmounted');
+
+    // Stop watcher
+    if (currentViewWatcher) {
+        currentViewWatcher();
+    }
+
+    // Cleanup realtime subscription
+    if (realtimeChannel && typeof realtimeChannel.unsubscribe === 'function') {
+        realtimeChannel.unsubscribe();
+    }
+});
 </script>
 
 <style scoped>

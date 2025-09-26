@@ -1,7 +1,9 @@
+import { fileURLToPath, URL } from 'node:url';
+
 import { defineConfig } from 'vite';
+
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-import { fileURLToPath, URL } from 'node:url';
 
 const vueConfig = {
     template: {
@@ -15,7 +17,13 @@ const vueConfig = {
 export default defineConfig(({ mode }) => ({
     server: {
         host: '::',
-        port: 8081,
+        port: 3000,
+        cors: true,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
+        },
     },
     plugins: [vue(vueConfig), vueJsx(vueConfig)],
     resolve: {
