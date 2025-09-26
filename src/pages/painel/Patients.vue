@@ -10,10 +10,12 @@
                     <Download class="mr-2 h-4 w-4" />
                     Exportar
                 </Button>
-                <Button @click="openAddPatientDialog">
-                    <UserPlus class="mr-2 h-4 w-4" />
-                    Novo Paciente
-                </Button>
+                <AddPatientDialog @patient-created="handlePatientCreated">
+                    <Button>
+                        <UserPlus class="mr-2 h-4 w-4" />
+                        Novo Paciente
+                    </Button>
+                </AddPatientDialog>
             </div>
         </div>
 
@@ -22,11 +24,16 @@
             <CardContent class="p-6">
                 <div class="flex flex-col gap-4 md:flex-row md:items-center">
                     <div class="flex-1">
-                        <Input
-                            v-model="searchQuery"
-                            placeholder="Buscar pacientes por nome, CPF ou email..."
-                            class="max-w-sm"
-                        />
+                        <div class="relative">
+                            <Search
+                                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4"
+                            />
+                            <Input
+                                v-model="filters.search"
+                                placeholder="Buscar pacientes por nome ou email..."
+                                class="pl-10 max-w-sm"
+                            />
+                        </div>
                     </div>
                     <div class="flex gap-2">
                         <Badge
@@ -47,60 +54,73 @@
         <Card>
             <CardHeader>
                 <CardTitle>Lista de Pacientes</CardTitle>
-                <CardDescription>Total de {{ filteredPatients.length }} pacientes encontrados</CardDescription>
+                <CardDescription>Total de {{ displayedPatients.length }} pacientes encontrados</CardDescription>
             </CardHeader>
             <CardContent>
-                <Table>
+                <div v-if="patientsStore.loading" class="flex items-center justify-center h-64">
+                    <Loader2 class="h-8 w-8 animate-spin" />
+                </div>
+                <Table v-else>
                     <TableHeader>
                         <TableRow>
                             <TableHead class="w-[250px]">Nome</TableHead>
-                            <TableHead>CPF</TableHead>
                             <TableHead>Email</TableHead>
                             <TableHead>Telefone</TableHead>
                             <TableHead>Data de Nascimento</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead class="w-[100px]">Ações</TableHead>
+                            <TableHead class="w-[120px]">Ações</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="patient in filteredPatients" :key="patient.id">
+                        <TableRow v-for="patient in displayedPatients" :key="patient.id">
                             <TableCell class="font-medium">
                                 <div class="flex items-center space-x-3">
-                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-patient/10">
-                                        <User class="h-4 w-4 text-patient" />
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                                        <User class="h-4 w-4 text-primary" />
                                     </div>
                                     <div>
                                         <div class="font-medium">{{ patient.name }}</div>
-                                        <div class="text-sm text-muted-foreground">{{ patient.age }} anos</div>
+                                        <div class="text-sm text-muted-foreground">
+                                            {{ patientsStore.calculateAge(patient.birth_date) }} anos
+                                        </div>
                                     </div>
                                 </div>
                             </TableCell>
-                            <TableCell>{{ patient.cpf }}</TableCell>
-                            <TableCell>{{ patient.email }}</TableCell>
-                            <TableCell>{{ patient.phone }}</TableCell>
-                            <TableCell>{{ formatDate(patient.birthDate) }}</TableCell>
+                            <TableCell>{{ patient.email || 'N/A' }}</TableCell>
+                            <TableCell>{{ patient.phone || 'N/A' }}</TableCell>
+                            <TableCell>{{ formatDate(patient.birth_date) }}</TableCell>
                             <TableCell>
                                 <Badge :variant="getStatusVariant(patient.status)">
-                                    {{ patient.status }}
+                                    {{ getStatusLabel(patient.status) }}
                                 </Badge>
                             </TableCell>
                             <TableCell>
                                 <div class="flex items-center space-x-2">
-                                    <Button variant="ghost" size="icon" @click="viewPatient(patient)">
-                                        <Eye class="h-4 w-4" />
-                                    </Button>
-                                    <Button variant="ghost" size="icon" @click="editPatient(patient)">
-                                        <Edit class="h-4 w-4" />
-                                    </Button>
+                                    <ViewPatientDialog :patient="patient" @patient-updated="handlePatientUpdated">
+                                        <Button variant="ghost" size="icon" title="Visualizar">
+                                            <Eye class="h-4 w-4" />
+                                        </Button>
+                                    </ViewPatientDialog>
+                                    <EditPatientDialog :patient="patient" @patient-updated="handlePatientUpdated">
+                                        <Button variant="ghost" size="icon" title="Editar">
+                                            <Edit class="h-4 w-4" />
+                                        </Button>
+                                    </EditPatientDialog>
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        @click="deletePatient(patient)"
+                                        @click="confirmDeletePatient(patient)"
                                         class="text-destructive hover:text-destructive"
+                                        title="Excluir"
                                     >
                                         <Trash2 class="h-4 w-4" />
                                     </Button>
                                 </div>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow v-if="displayedPatients.length === 0">
+                            <TableCell :colspan="6" class="text-center py-8 text-muted-foreground">
+                                Nenhum paciente encontrado
                             </TableCell>
                         </TableRow>
                     </TableBody>
@@ -124,13 +144,48 @@
                 </CardContent>
             </Card>
         </div>
+
+        <!-- Delete Confirmation Dialog -->
+        <Dialog v-model:open="deleteDialogOpen">
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Confirmar Exclusão</DialogTitle>
+                    <DialogDescription>
+                        Tem certeza que deseja excluir o paciente {{ patientToDelete?.name }}? Esta ação não pode ser
+                        desfeita.
+                    </DialogDescription>
+                </DialogHeader>
+                <div class="flex justify-end gap-4 pt-6">
+                    <Button variant="outline" @click="deleteDialogOpen = false">Cancelar</Button>
+                    <Button variant="destructive" @click="deletePatient" :disabled="patientsStore.loading">
+                        <Loader2 v-if="patientsStore.loading" class="h-4 w-4 mr-2 animate-spin" />
+                        Excluir Paciente
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { UserPlus, Download, User, Eye, Edit, Trash2, Users, UserCheck, UserX, Clock } from 'lucide-vue-next';
+import { ref, computed, onMounted, reactive } from 'vue';
+import {
+    UserPlus,
+    Download,
+    User,
+    Eye,
+    Edit,
+    Trash2,
+    Users,
+    UserCheck,
+    UserX,
+    Clock,
+    Search,
+    Loader2,
+} from 'lucide-vue-next';
 import { cn } from '@/lib/utils';
+import type { Patient, PatientFilters } from '@/types/patient';
+import { usePatientsStore } from '@/stores/patients';
 
 // Import UI components
 import Card from '@/components/ui/Card.vue';
@@ -147,125 +202,74 @@ import TableCell from '@/components/ui/TableCell.vue';
 import TableHead from '@/components/ui/TableHead.vue';
 import TableHeader from '@/components/ui/TableHeader.vue';
 import TableRow from '@/components/ui/TableRow.vue';
+import Dialog from '@/components/ui/Dialog.vue';
+import DialogContent from '@/components/ui/DialogContent.vue';
+import DialogDescription from '@/components/ui/DialogDescription.vue';
+import DialogHeader from '@/components/ui/DialogHeader.vue';
+import DialogTitle from '@/components/ui/DialogTitle.vue';
 
-// Data and state
-const searchQuery = ref('');
+// Import patient components
+import AddPatientDialog from '@/components/patients/AddPatientDialog.vue';
+import EditPatientDialog from '@/components/patients/EditPatientDialog.vue';
+import ViewPatientDialog from '@/components/patients/ViewPatientDialog.vue';
 
-interface Patient {
-    id: string;
-    name: string;
-    cpf: string;
-    email: string;
-    phone: string;
-    birthDate: string;
-    age: number;
-    status: 'Ativo' | 'Inativo' | 'Pendente';
-}
+// Store
+const patientsStore = usePatientsStore();
 
-const patients = ref<Patient[]>([
-    {
-        id: '1',
-        name: 'João Silva Santos',
-        cpf: '123.456.789-10',
-        email: 'joao.silva@email.com',
-        phone: '(11) 99999-9999',
-        birthDate: '1985-03-15',
-        age: 38,
-        status: 'Ativo',
-    },
-    {
-        id: '2',
-        name: 'Maria Santos Oliveira',
-        cpf: '987.654.321-00',
-        email: 'maria.santos@email.com',
-        phone: '(11) 88888-8888',
-        birthDate: '1990-07-22',
-        age: 33,
-        status: 'Ativo',
-    },
-    {
-        id: '3',
-        name: 'Pedro Costa Lima',
-        cpf: '456.789.123-45',
-        email: 'pedro.costa@email.com',
-        phone: '(11) 77777-7777',
-        birthDate: '1978-11-08',
-        age: 45,
-        status: 'Inativo',
-    },
-    {
-        id: '4',
-        name: 'Ana Paula Silva',
-        cpf: '789.123.456-78',
-        email: 'ana.paula@email.com',
-        phone: '(11) 66666-6666',
-        birthDate: '1995-01-30',
-        age: 28,
-        status: 'Pendente',
-    },
-]);
+// State
+const filters = reactive<PatientFilters>({
+    search: '',
+    status: ['all'],
+});
+
+const deleteDialogOpen = ref(false);
+const patientToDelete = ref<Patient | null>(null);
 
 const statusFilters = ref([
     { label: 'Todos', value: 'all', active: true },
-    { label: 'Ativos', value: 'Ativo', active: false },
-    { label: 'Inativos', value: 'Inativo', active: false },
-    { label: 'Pendentes', value: 'Pendente', active: false },
+    { label: 'Ativos', value: 'active', active: false },
+    { label: 'Inativos', value: 'inactive', active: false },
+    { label: 'Pendentes', value: 'pending', active: false },
 ]);
 
 // Computed properties
-const filteredPatients = computed(() => {
-    let filtered = patients.value;
-
-    // Filter by search query
-    if (searchQuery.value) {
-        const query = searchQuery.value.toLowerCase();
-        filtered = filtered.filter(
-            (patient) =>
-                patient.name.toLowerCase().includes(query) ||
-                patient.cpf.includes(query) ||
-                patient.email.toLowerCase().includes(query)
-        );
-    }
-
-    // Filter by status
-    const activeStatusFilters = statusFilters.value.filter((filter) => filter.active);
-    if (activeStatusFilters.length > 0 && !activeStatusFilters.some((filter) => filter.value === 'all')) {
-        filtered = filtered.filter((patient) => activeStatusFilters.some((filter) => filter.value === patient.status));
-    }
-
-    return filtered;
+const displayedPatients = computed(() => {
+    return patientsStore.filteredPatients(filters);
 });
 
-const patientStats = computed(() => [
-    {
-        label: 'Total de Pacientes',
-        value: patients.value.length.toString(),
-        icon: Users,
-        bgColor: 'bg-patient/10',
-        iconColor: 'text-patient',
-    },
-    {
-        label: 'Pacientes Ativos',
-        value: patients.value.filter((p) => p.status === 'Ativo').length.toString(),
-        icon: UserCheck,
-        bgColor: 'bg-success/10',
-        iconColor: 'text-success',
-    },
-    {
-        label: 'Pacientes Inativos',
-        value: patients.value.filter((p) => p.status === 'Inativo').length.toString(),
-        icon: UserX,
-        bgColor: 'bg-destructive/10',
-        iconColor: 'text-destructive',
-    },
-    {
-        label: 'Pendentes',
-        value: patients.value.filter((p) => p.status === 'Pendente').length.toString(),
-        icon: Clock,
-        bgColor: 'bg-warning/10',
-        iconColor: 'text-warning',
-    },
-]);
+const patientStats = computed(() => {
+    const stats = patientsStore.patientCount;
+    return [
+        {
+            label: 'Total de Pacientes',
+            value: stats.total.toString(),
+            icon: Users,
+            bgColor: 'bg-primary/10',
+            iconColor: 'text-primary',
+        },
+        {
+            label: 'Pacientes Ativos',
+            value: stats.active.toString(),
+            icon: UserCheck,
+            bgColor: 'bg-success/10',
+            iconColor: 'text-success',
+        },
+        {
+            label: 'Pacientes Inativos',
+            value: stats.inactive.toString(),
+            icon: UserX,
+            bgColor: 'bg-destructive/10',
+            iconColor: 'text-destructive',
+        },
+        {
+            label: 'Pendentes',
+            value: stats.pending.toString(),
+            icon: Clock,
+            bgColor: 'bg-warning/10',
+            iconColor: 'text-warning',
+        },
+    ];
+});
 
 // Methods
 const toggleStatusFilter = (value: string) => {
@@ -276,6 +280,7 @@ const toggleStatusFilter = (value: string) => {
             statusFilters.value.forEach((f) => {
                 f.active = f.value === 'all';
             });
+            filters.status = ['all'];
         } else {
             // Deactivate 'Todos' when selecting specific status
             const allFilter = statusFilters.value.find((f) => f.value === 'all');
@@ -283,10 +288,15 @@ const toggleStatusFilter = (value: string) => {
 
             filter.active = !filter.active;
 
+            // Update filters
+            const activeStatuses = statusFilters.value.filter((f) => f.value !== 'all' && f.active).map((f) => f.value);
+
             // If no specific filters are active, activate 'Todos'
-            const hasActiveFilters = statusFilters.value.some((f) => f.value !== 'all' && f.active);
-            if (!hasActiveFilters && allFilter) {
-                allFilter.active = true;
+            if (activeStatuses.length === 0) {
+                if (allFilter) allFilter.active = true;
+                filters.status = ['all'];
+            } else {
+                filters.status = activeStatuses;
             }
         }
     }
@@ -298,35 +308,58 @@ const formatDate = (dateString: string) => {
 
 const getStatusVariant = (status: string) => {
     switch (status) {
-        case 'Ativo':
+        case 'active':
             return 'success';
-        case 'Inativo':
+        case 'inactive':
             return 'destructive';
-        case 'Pendente':
+        case 'pending':
             return 'warning';
         default:
             return 'outline';
     }
 };
 
-// Dialog and action methods
-const openAddPatientDialog = () => {
-    console.log('Opening add patient dialog');
-    // TODO: Implement dialog
+const getStatusLabel = (status: string) => {
+    switch (status) {
+        case 'active':
+            return 'Ativo';
+        case 'inactive':
+            return 'Inativo';
+        case 'pending':
+            return 'Pendente';
+        default:
+            return status;
+    }
 };
 
-const viewPatient = (patient: Patient) => {
-    console.log('Viewing patient:', patient);
-    // TODO: Navigate to patient details page
+// Event handlers
+const handlePatientCreated = (patient: Patient) => {
+    console.log('Patient created:', patient);
+    // Store will handle updating the list
 };
 
-const editPatient = (patient: Patient) => {
-    console.log('Editing patient:', patient);
-    // TODO: Open edit patient dialog
+const handlePatientUpdated = (patient: Patient) => {
+    console.log('Patient updated:', patient);
+    // Store will handle updating the list
 };
 
-const deletePatient = (patient: Patient) => {
-    console.log('Deleting patient:', patient);
-    // TODO: Show confirmation dialog and delete patient
+const confirmDeletePatient = (patient: Patient) => {
+    patientToDelete.value = patient;
+    deleteDialogOpen.value = true;
 };
+
+const deletePatient = async () => {
+    if (patientToDelete.value) {
+        const success = await patientsStore.deletePatient(patientToDelete.value.id);
+        if (success) {
+            deleteDialogOpen.value = false;
+            patientToDelete.value = null;
+        }
+    }
+};
+
+// Lifecycle
+onMounted(() => {
+    patientsStore.fetchPatients();
+});
 </script>
