@@ -100,7 +100,12 @@ const handleLogin = async () => {
         } else {
             // Sucesso no login → pega a rota de intenção
             const redirectTo = (route.query.redirect_to as string) || '/painel';
-            router.push(redirectTo);
+            console.log('redirectTo', redirectTo);
+            console.log('route.query', route.query);
+
+            if (redirectTo) {
+                await router.push(redirectTo);
+            }
         }
     } catch (err) {
         console.error('Unexpected login error:', err);

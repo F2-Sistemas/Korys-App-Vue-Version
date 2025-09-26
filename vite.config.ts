@@ -19,7 +19,11 @@ export default defineConfig(({ mode }) => ({
         // host: '::',
         host: '0.0.0.0',
         port: 3000,
-        allowedHosts: ['local.korys.com.br'],
+        allowedHosts: [
+            'local.korys.com.br',
+            'localhost',
+            //
+        ],
         cors: true,
         headers: {
             'Access-Control-Allow-Origin': '*',
