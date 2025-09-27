@@ -1,10 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
 
 // import BaseLayout from '@/layouts/BaseLayout.vue';
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
-
 import painelRoutes from '@/router/painel-routes';
+import { useAuthStore } from '@/stores/auth';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -59,11 +58,14 @@ const router = createRouter({
 router.beforeEach(async (to) => {
     const authStore = useAuthStore();
 
-    // Ensure auth is initialized before checking routes
+    // Garante que auth está inicializado
     await authStore.initialize();
 
     if (to.meta.requiresAuth && !authStore.user) {
-        return '/login';
+        return {
+            path: '/login',
+            query: { redirect_to: to.fullPath }, // guarda a rota de intenção
+        };
     }
 
     if (to.meta.requiresGuest && authStore.user) {

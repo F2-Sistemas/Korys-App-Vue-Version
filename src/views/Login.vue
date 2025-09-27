@@ -59,30 +59,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { toast } from 'vue3-toastify';
+import { ref } from 'vue';
+
 import { Loader2 } from 'lucide-vue-next';
+import { useRoute, useRouter } from 'vue-router';
+import { toast } from 'vue3-toastify';
+
 import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 
 const email = ref('');
 const password = ref('');
 const loading = ref(false);
-
-// Watch for authentication changes and redirect
-watch(
-    () => authStore.user,
-    (newUser) => {
-        if (newUser && !authStore.loading) {
-            loading.value = false;
-            router.push('/painel');
-        }
-    },
-    { immediate: true }
-);
 
 const handleLogin = async () => {
     if (!email.value || !password.value) {
@@ -98,7 +89,6 @@ const handleLogin = async () => {
         if (error) {
             console.error('Login error:', error.message);
 
-            // Handle different error types with appropriate messages
             if (error.message.includes('Invalid login credentials')) {
                 toast.error('Email ou senha incorretos');
             } else if (error.message.includes('Email not confirmed')) {
@@ -108,9 +98,14 @@ const handleLogin = async () => {
             }
             loading.value = false;
         } else {
-            // Wait for auth state to update, then redirect will happen via router guard
-            // Success toast will be shown by auth store
-            // Don't set loading to false here - let the auth state change handle it
+            // Sucesso no login → pega a rota de intenção
+            const redirectTo = (route.query.redirect_to as string) || '/painel';
+            console.log('redirectTo', redirectTo);
+            console.log('route.query', route.query);
+
+            if (redirectTo) {
+                await router.push(redirectTo);
+            }
         }
     } catch (err) {
         console.error('Unexpected login error:', err);
@@ -119,6 +114,6 @@ const handleLogin = async () => {
     }
 };
 
-// Initialize auth store
+// Inicializa store
 authStore.initialize();
 </script>
